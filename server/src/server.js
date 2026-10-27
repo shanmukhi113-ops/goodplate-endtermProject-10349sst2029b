@@ -14,6 +14,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   console.error('JWT_SECRET must be set to a random secret of at least 32 characters.');
   process.exit(1);
 }
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
 app.use(express.json({ limit: '20kb' }));
@@ -29,5 +30,10 @@ app.use((err, _req, res, _next) => {
   return res.status(500).json({ message: 'Unexpected server error. Please try again.' });
 });
 
-connectDB().then(() => app.listen(port, () => console.log(`Goodplate API listening on http://localhost:${port}`)))
-  .catch((error) => { console.error('Could not start server:', error.message); process.exit(1); });
+// Local only. On Vercel, api/index.js connects to the DB and handles requests.
+if (!process.env.VERCEL) {
+  connectDB().then(() => app.listen(port, () => console.log(`Goodplate API listening on http://localhost:${port}`)))
+    .catch((error) => { console.error('Could not start server:', error.message); process.exit(1); });
+}
+
+export default app;
