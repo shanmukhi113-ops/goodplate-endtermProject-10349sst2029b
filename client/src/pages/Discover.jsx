@@ -1,0 +1,10 @@
+import { useEffect, useState } from 'react';
+import { Search } from 'lucide-react';
+import { api } from '../lib/api';
+import MealCard from '../components/MealCard';
+export default function Discover(){const [meals,setMeals]=useState([]);const [search,setSearch]=useState('');const [category,setCategory]=useState('all');const [sort,setSort]=useState('soon');const [error,setError]=useState('');const [busyId,setBusyId]=useState('');
+ async function load(){try{const q=new URLSearchParams({search,category,sort});const data=await api(`/meals?${q}`);setMeals(data.meals);setError('');}catch(e){setError(e.message);}}
+ useEffect(()=>{const timer=setTimeout(load,220);return()=>clearTimeout(timer);},[search,category,sort]);
+ async function reserve(id){setBusyId(id);try{await api(`/meals/${id}/reserve`,{method:'POST'});await load();}catch(e){setError(e.message);}finally{setBusyId('');}}
+ return <><section className="page-intro"><p className="eyebrow">FIND SOMETHING GOOD</p><h1>Find your <em>next meal.</em></h1><p className="muted">Good food, shared by people around your campus.</p></section><div className="filter-bar"><label className="search-field"><Search size={17}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search meals, kitchens, ingredients…" aria-label="Search meals"/></label><select value={category} onChange={e=>setCategory(e.target.value)} aria-label="Filter category"><option value="all">All categories</option>{['Meals','Bakery','Produce','Snacks','Drinks'].map(c=><option key={c}>{c}</option>)}</select><select value={sort} onChange={e=>setSort(e.target.value)} aria-label="Sort meals"><option value="soon">Expiring soon</option><option value="new">Recently added</option><option value="qty">Most portions</option></select></div>{error&&<p className="alert alert-error">{error}</p>}<div className="meal-list">{meals.length?meals.map(m=><MealCard key={m._id} meal={m} onReserve={reserve} reserving={busyId===m._id}/>):<div className="empty-state"><span>🍃</span><h3>No matching meals.</h3><p>Try another search or category, or check back a little later.</p></div>}</div></>;
+}

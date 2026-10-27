@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { closeMeal, createMeal, listMeals, myMeals, myReservations, reserveMeal, updateReservation } from '../controllers/mealController.js';
+import { requireAuth } from '../middleware/auth.js';
+const router = Router();
+router.get('/', listMeals);
+router.post('/', requireAuth, createMeal);
+router.get('/mine', requireAuth, myMeals);
+router.get('/reservations/mine', requireAuth, myReservations);
+router.post('/:id/reserve', requireAuth, reserveMeal);
+router.patch('/reservations/:id', requireAuth, updateReservation);
+router.patch('/:id/close', requireAuth, closeMeal);
+export default router;

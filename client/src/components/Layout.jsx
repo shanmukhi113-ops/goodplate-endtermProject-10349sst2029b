@@ -1,0 +1,10 @@
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { House, Search, ClipboardList, PlusCircle, Leaf, LogOut, UserRound, Menu } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+export default function Layout() {
+  const { user, logout } = useAuth(); const navigate = useNavigate(); const [mobileOpen, setMobileOpen] = useState(false);
+  async function handleLogout() { await logout(); navigate('/login', { replace: true }); }
+  const links = [{to:'/',label:'Overview',icon:House},{to:'/discover',label:'Discover meals',icon:Search},{to:'/reservations',label:'My reservations',icon:ClipboardList},{to:'/listings',label:'My listings',icon:PlusCircle}];
+  return <div className="app-shell"><aside className={`sidebar ${mobileOpen?'sidebar-open':''}`}><NavLink to="/" className="brand" onClick={()=>setMobileOpen(false)}><span className="brand-mark">✳</span><span className="brand-name">good<span>plate</span></span></NavLink><p className="eyebrow">Workspace</p><nav className="side-nav">{links.map(({to,label,icon:Icon})=><NavLink key={to} to={to} end={to==='/'} onClick={()=>setMobileOpen(false)}><Icon size={17}/>{label}</NavLink>)}</nav><div className="side-note"><Leaf size={19}/><p className="eyebrow">Small choices, big change</p><h3>Good food.<br/>Better futures.</h3><p>Every rescued meal is one less meal wasted. One plate at a time.</p></div><div className="sidebar-foot">MADE FOR A MORE THOUGHTFUL CAMPUS</div></aside><main className="main-area"><header className="topbar"><button className="icon-button mobile-toggle" onClick={()=>setMobileOpen(v=>!v)} aria-label="Toggle menu"><Menu/></button><div className="breadcrumb">Goodplate <span>/</span> <strong>Campus community</strong></div><div className="profile"><div className="avatar">{user?.name?.[0]?.toUpperCase()||'U'}</div><div className="profile-copy"><strong>{user?.name}</strong><span>{user?.email}</span></div><button className="logout-button" onClick={handleLogout}><LogOut size={15}/><span>Log out</span></button></div></header><Outlet/></main></div>
+}
